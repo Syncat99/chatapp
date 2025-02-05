@@ -16,7 +16,7 @@
 /phpunit.xml
 .phpunit.result.cache
 ###< phpunit/phpunit ###
-./migrations/*
+/migrations/
 
 ###> symfony/phpunit-bridge ###
 .phpunit.result.cache
