@@ -17,7 +17,7 @@ class Message
     private string $id;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(name: 'sender_id', referencedColumnName: 'id', nullable: false)]
+    #[ORM\JoinColumn(name: 'sender_id', referencedColumnName: 'id', nullable: false, onDelete: "CASCADE")]
     private User $sender;
 
     #[ORM\Column(type: Types::TEXT)]

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useData } from "../../context/dataContext";
+import axios from "axios";
 
 export default function Profile() {
   const { data } = useData();
@@ -10,8 +11,27 @@ export default function Profile() {
     confirmNewPassword: "",
     password: "",
   });
-  const handleChange = () => {};
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setProfileData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+    console.log(profileData);
+  };
+  const updateProfile = async (profileData) => {
+    const filteredData = Object.fromEntries(Object.entries(profileData).filter(([key, value]) => key === "password" || value.trim() !== ""));
+    filteredData.userId = data.id;
 
+    try {
+      const response = await axios.post("http://localhost:8000/api/updateProfile", filteredData, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (error) {}
+  };
   return (
     <div className="bg-gray-300 h-[calc(100vh-3.5rem)] flex flex-col items-center py-6">
       {data && (
@@ -74,7 +94,12 @@ export default function Profile() {
               </div>
             </div>
             <div className="flex w-full">
-              <button className="w-full p-4 text-gray-300 font-bold border border-gray-500 bg-gray-500 hover:bg-gray-300 hover:text-gray-500 my-4 rounded-md" onClick={() => {}}>
+              <button
+                className="w-full p-4 text-gray-300 font-bold border border-gray-500 bg-gray-500 hover:bg-gray-300 hover:text-gray-500 my-4 rounded-md"
+                onClick={() => {
+                  updateProfile(profileData);
+                }}
+              >
                 Sauvegarder
               </button>
             </div>

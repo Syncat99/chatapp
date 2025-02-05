@@ -297,4 +297,43 @@ final class UserController extends AbstractController
 
         return new JsonResponse(['message' => 'Room deleted successfully'], 200);
     }
+    #[Route('/api/updateProfile', name: 'update_profile', methods: ['POST'])]
+    public function updateProfile(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+
+        if (!isset($data['userId'], $data['password']) || empty($data['userId']) || empty($data['password'])) {
+            return new JsonResponse(['error' => 'User ID and password are required'], 400);
+        }
+
+        $user = $entityManager->getRepository(User::class)->find($data['userId']);
+        
+        if (!$user) {
+            return new JsonResponse(['error' => 'User not found'], 404);
+        }
+
+        if (!$passwordHasher->isPasswordValid($user, $data['password'])) {
+            return new JsonResponse(['error' => 'Incorrect password'], 403);
+        }
+
+        if (!empty($data['username'])) {
+            $user->setUsername($data['username']);
+        }
+        if (!empty($data['email'])) {
+            $user->setEmail($data['email']);
+        }
+        if (!empty($data['newPassword']) && !empty($data['confirmNewPassword'])) {
+            if ($data['newPassword'] === $data['confirmNewPassword']) {
+                $user->setPassword($passwordHasher->hashPassword($user, $data['newPassword']));
+            } else {
+                return new JsonResponse(['error' => 'Passwords do not match'], 400);
+            }
+        }
+
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        return new JsonResponse(['message' => 'Profile updated successfully'], 200);
+    }
+
 }
